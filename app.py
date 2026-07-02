@@ -417,11 +417,6 @@ def run_checkin():
         f"📋 {session_status}"
     )
 
-    print()
-    log("INFO", "=== 通知内容 ===")
-    print(message)
-    print()
-
     send_telegram(message)
 
     log("INFO", "=== 脚本执行完毕 ===")
