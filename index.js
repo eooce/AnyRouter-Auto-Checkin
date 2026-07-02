@@ -1,85 +1,147 @@
 import { chromium } from "playwright";
-import { sendTG } from "./message.js";
-import { updateSessionSecret } from "./github.js";
+import fetch from "node-fetch";
 
 const USER_ID = process.env.USER_ID || 173952;
 const SESSION = process.env.SESSION || 'MTc4Mjk2Nzk5N3xEWDhFQVFMX2dBQUJFQUVRQUFEXzVQLUFBQWNHYzNSeWFXNW5EQVlBQkhKdmJHVURhVzUwQkFJQUFnWnpkSEpwYm1jTUNBQUdjM1JoZEhWekEybHVkQVFDQUFJR2MzUnlhVzVuREFjQUJXZHliM1Z3Qm5OMGNtbHVad3dKQUFka1pXWmhkV3gwQm5OMGNtbHVad3dGQUFOaFptWUdjM1J5YVc1bkRBWUFCRWhOUjFnR2MzUnlhVzVuREEwQUMyOWhkWFJvWDNOMFlYUmxCbk4wY21sdVp3d09BQXhCTkhZeWNrdDFia05XVUVNR2MzUnlhVzVuREFRQUFtbGtBMmx1ZEFRRkFQMEZUd0FHYzNSeWFXNW5EQW9BQ0hWelpYSnVZVzFsQm5OMGNtbHVad3dRQUE1c2FXNTFlR1J2WHpFM016azFNZz09fKughFbFl4sHiBeB3s4UApu9M0ph8mPSn9n9OMYZnGfr';
 
-const browser = await chromium.launch({
-    headless: true
-});
+const TG_BOT_TOKEN = process.env.TG_BOT_TOKEN;
+const TG_CHAT_ID = process.env.TG_CHAT_ID;
 
-const context = await browser.newContext();
+function now() {
+    return new Date().toLocaleString("zh-CN", {
+        hour12: false,
+        timeZone: "Asia/Shanghai"
+    });
+}
 
-await context.addCookies([
-    {
-        name: "USER_ID",
-        value: USER_ID,
-        domain: "anyrouter.top",
-        path: "/"
-    },
-    {
-        name: "SESSION",
-        value: SESSION,
-        domain: "anyrouter.top",
-        path: "/",
-        httpOnly: true
+async function sendTG(message) {
+
+    if (!TG_BOT_TOKEN || !TG_CHAT_ID) {
+        console.log("未配置TG");
+        return;
     }
-]);
 
-const page = await context.newPage();
-
-await page.goto("https://anyrouter.top/console", {
-    waitUntil: "networkidle"
-});
-
-if (page.url().includes("/login")) {
-    throw new Error("Cookie 已失效");
+    await fetch(
+        `https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`,
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                chat_id: TG_CHAT_ID,
+                text: message
+            })
+        }
+    );
 }
 
-async function getBalance() {
+(async () => {
 
-    const locator = page.locator(".text-lg.font-semibold").first();
+    const browser = await chromium.launch({
+        headless: true
+    });
 
-    const txt = await locator.innerText();
+    const context = await browser.newContext();
 
-    return parseFloat(txt.replace("$", ""));
-}
+    await context.addCookies([
+        {
+            name: "USER_ID",
+            value: USER_ID,
+            domain: "anyrouter.top",
+            path: "/"
+        },
+        {
+            name: "SESSION",
+            value: SESSION,
+            domain: "anyrouter.top",
+            path: "/",
+            httpOnly: true
+        }
+    ]);
 
-const before = await getBalance();
+    const page = await context.newPage();
 
-console.log(before);
+    console.log("打开控制台...");
 
-await page.waitForTimeout(3000);
+    await page.goto(
+        "https://anyrouter.top/console",
+        {
+            waitUntil: "networkidle"
+        }
+    );
 
-await page.reload({
-    waitUntil: "networkidle"
-});
+    if (page.url().includes("/login")) {
 
-const after = await getBalance();
+        console.log("Cookie失效");
 
-console.log(after);
+        await sendTG(`❌ Anyrouter 登录失败
 
-const cookies = await context.cookies();
+👤 用户：${USER_ID}
 
-const sessionCookie = cookies.find(c => c.name === "SESSION");
+时间：${now()}
+`);
 
-if (sessionCookie && sessionCookie.expires > 0) {
+        await browser.close();
 
-    const remain = sessionCookie.expires - Math.floor(Date.now() / 1000);
-
-    if (remain < 2 * 24 * 3600) {
-
-        console.log("Session 即将过期");
-
-        await updateSessionSecret(sessionCookie.value);
+        process.exit(1);
     }
-}
 
-await sendTG({
-    user: USER_ID,
-    before,
-    after
-});
+    console.log("登录成功");
 
-await browser.close();
+    async function getBalance() {
+
+        const balance = await page.locator("text=当前余额")
+            .locator("xpath=following-sibling::*[1]")
+            .innerText();
+
+        return parseFloat(balance.replace("$", ""));
+    }
+
+    const oldBalance = await getBalance();
+
+    console.log("余额:", oldBalance);
+
+    await page.waitForTimeout(3000);
+
+    await page.reload({
+        waitUntil: "networkidle"
+    });
+
+    const newBalance = await getBalance();
+
+    console.log("刷新余额:", newBalance);
+
+    let status = "余额无变化";
+
+    if (newBalance > oldBalance) {
+
+        status = `余额增加 ${newBalance - oldBalance}$`;
+
+    } else if (newBalance < oldBalance) {
+
+        status = `余额减少 ${oldBalance - newBalance}$`;
+    }
+
+    const text =
+
+`🎁 Anyrouter 余额通知
+
+👤 登录账户: ${USER_ID}
+
+💰 初始余额: ${oldBalance}$
+
+💰 当前余额: ${newBalance}$
+
+📈 状态: ${status}
+
+⏱️ 检查时间: ${now()}
+`;
+
+    console.log(text);
+
+    await sendTG(text);
+
+    await browser.close();
+
+})();
