@@ -13,9 +13,9 @@ from playwright.sync_api import sync_playwright
 # ============================================================
 # 配置
 # ============================================================
-USER_ID = os.getenv("USER_ID", "173952")
-SESSION = os.getenv("SESSION", "")
-SITE_URL = os.getenv("SITE_URL", "https://anyrouter.top")
+USER_ID = os.getenv("USER_ID") or "173952"
+SESSION = os.getenv("SESSION") or "MTc4Mjk2Nzk5N3xEWDhFQVFMX2dBQUJFQUVRQUFEXzVQLUFBQWNHYzNSeWFXNW5EQVlBQkhKdmJHVURhVzUwQkFJQUFnWnpkSEpwYm1jTUNBQUdjM1JoZEhWekEybHVkQVFDQUFJR2MzUnlhVzVuREFjQUJXZHliM1Z3Qm5OMGNtbHVad3dKQUFka1pXWmhkV3gwQm5OMGNtbHVad3dGQUFOaFptWUdjM1J5YVc1bkRBWUFCRWhOUjFnR2MzUnlhVzVuREEwQUMyOWhkWFJvWDNOMFlYUmxCbk4wY21sdVp3d09BQXhCTkhZeWNrdDFia05XVUVNR2MzUnlhVzVuREFRQUFtbGtBMmx1ZEFRRkFQMEZUd0FHYzNSeWFXNW5EQW9BQ0hWelpYSnVZVzFsQm5OMGNtbHVad3dRQUE1c2FXNTFlR1J2WHpFM016azFNZz09fKughFbFl4sHiBeB3s4UApu9M0ph8mPSn9n9OMYZnGfr"
+SITE_URL = os.getenv("SITE_URL") or "https://anyrouter.top"
 
 # Telegram
 TG_BOT_TOKEN = os.getenv("TG_BOT_TOKEN", "")
