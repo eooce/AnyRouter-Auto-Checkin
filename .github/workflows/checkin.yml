@@ -13,6 +13,7 @@ on:
 # 权限设置（用于更新 Secrets）
 # ============================================================
 permissions:
+  actions: write
   contents: read
 
 jobs:
@@ -56,3 +57,18 @@ jobs:
           SESSION_THRESHOLD_DAYS: ${{ vars.SESSION_THRESHOLD_DAYS || '2' }}
           QUOTA_PER_DOLLAR: ${{ vars.QUOTA_PER_DOLLAR || '500000' }}
         run: python app.py
+
+      - name: 🧹 清理旧的工作流运行记录
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          runs=$(gh run list --workflow="${{ github.workflow }}" --limit=100 --json databaseId --jq '.[].databaseId')
+          count=0
+          for run_id in $runs; do
+            count=$((count + 1))
+            if [ $count -gt 1 ]; then
+              echo "删除运行记录: $run_id"
+              gh run delete $run_id || true
+            fi
+          done
