@@ -409,7 +409,7 @@ def run_checkin():
 
     # ---------- Step 9: 发送 Telegram 通知 ----------
     message = (
-        f"🎁 <b>Anyrouter 领币通知</b>\n"
+        f"🎁 <b>Anyrouter 签到通知</b>\n\n"
         f"👤 登录账户: {USER_ID}\n"
         f"💰 昨日余额: {first_balance}\n"
         f"💰 当前余额: {second_balance}\n"
