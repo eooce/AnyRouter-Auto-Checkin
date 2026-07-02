@@ -46,13 +46,13 @@ async function sendTG(message) {
 
     await context.addCookies([
         {
-            name: "USER_ID",
+            name: "new-api-user",
             value: USER_ID,
             domain: "anyrouter.top",
             path: "/"
         },
         {
-            name: "SESSION",
+            name: "session",
             value: SESSION,
             domain: "anyrouter.top",
             path: "/",
