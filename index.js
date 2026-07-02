@@ -1,5 +1,5 @@
 import { chromium } from "playwright";
-import { sendTG } from "./tg.js";
+import { sendTG } from "./message.js";
 import { updateSessionSecret } from "./github.js";
 
 const USER_ID = process.env.USER_ID || 173952;
