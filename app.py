@@ -395,6 +395,7 @@ def run_checkin():
         f"💰 当前余额: {second_balance}\n"
         f"⏱️ 登录时间: {now_str}\n"
         f"📋 {session_status}"
+        f"https://anyrouter.top"
     )
 
     send_telegram(message)
@@ -416,6 +417,7 @@ def main():
             f"👤 账户: {USER_ID}\n"
             f"⏱️ 时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
             f"📝 错误: {error_msg}"
+            f"https://anyrouter.top"
         )
         sys.exit(1)
 
