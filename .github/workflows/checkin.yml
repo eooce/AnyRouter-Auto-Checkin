@@ -2,7 +2,7 @@ name: Ayrouter Daily Check-in
 
 on:
   schedule:
-    - cron: '0 2 * * *'
+    - cron: '0 3 * * *'
   # 支持手动触发
   workflow_dispatch:
 
