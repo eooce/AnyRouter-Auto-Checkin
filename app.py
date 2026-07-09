@@ -295,7 +295,8 @@ def format_balance(quota: int) -> str:
 
 # 主流程
 def run_checkin():
-    now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    beijing_tz = timezone(timedelta(hours=8))
+    now_str = datetime.now(beijing_tz).strftime("%Y-%m-%d %H:%M:%S")
 
     log("INFO", "=" * 50)
     log("INFO", "Anyrouter 领币脚本启动")
@@ -395,6 +396,7 @@ def run_checkin():
         f"💰 当前余额: {second_balance}\n"
         f"⏱️ 登录时间: {now_str}\n"
         f"📋 {session_status}"
+        f"https://anyrouter.top"
     )
 
     send_telegram(message)
@@ -411,11 +413,13 @@ def main():
         error_msg = f"{type(e).__name__}: {e}"
         log("ERROR", f"脚本执行出错: {error_msg}")
         log("ERROR", traceback.format_exc())
+        beijing_tz = timezone(timedelta(hours=8))
         send_telegram(
             f"❌ <b>Anyrouter 脚本异常</b>\n"
             f"👤 账户: {USER_ID}\n"
-            f"⏱️ 时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
+            f"⏱️ 时间: {datetime.now(beijing_tz).strftime('%Y-%m-%d %H:%M:%S')}\n"
             f"📝 错误: {error_msg}"
+            f"https://anyrouter.top"
         )
         sys.exit(1)
 
